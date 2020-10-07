@@ -9,9 +9,9 @@ class _Router:
     """
 
     def get(
-        self,
-        endpoint: str,
-        params: dict = {},
+            self,
+            endpoint: str,
+            params: dict = {},
     ) -> requests.models.Response:
         """
         Args:
@@ -28,7 +28,7 @@ class _Router:
             endpoint: str,
             params: dict = {},
             headers: dict = {},
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Gets a file.
         """
@@ -40,7 +40,7 @@ class _Router:
             url: str,
             params: dict = {},
             headers: dict = {},
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         return self.session.get(url, params=params, headers=headers)
 
     def post(
@@ -49,7 +49,7 @@ class _Router:
             data: dict = {},
             json: dict = {},
             files: dict = {}
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Used to POST arbitrary (form) data or explicit JSON.
         Both will have the correct Content-Type header set.
@@ -58,13 +58,16 @@ class _Router:
             return "Error: cannot have both data and json"
 
         request_url = urljoin(self.baseurl, endpoint)
-        return self.session.post(
-                request_url, data=data, files=files, json=json).json()
+        r = self.session.post(
+            request_url, data=data, files=files, json=json)
+        if r.headers.get('content-type') == 'application/json':
+            return r.json()
+        return r.json() if len(r.content) else None
 
     def delete(
             self,
             endpoint: str,
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Deletes something at the given endpoint.
         """
@@ -74,7 +77,7 @@ class _Router:
     def build_url_parameter(
             self,
             url_parameter: dict
-            ) -> str:
+    ) -> str:
         """
         Format url_parameters.
 
@@ -86,7 +89,7 @@ class _Router:
         """
         return ''.join(['?', '&'.join(['&'.join(['='.join(
             [tup[0], str(value)])
-                    for value in tup[1]]) for tup in url_parameter.items()])])
+            for value in (tup[1] if isinstance(tup[1], list) else [tup[1]])]) for tup in url_parameter.items()])])
 
 
 class DoccanoClient(_Router):
@@ -101,15 +104,16 @@ class DoccanoClient(_Router):
     Returns:
         An authorized client instance.
     """
+
     def __init__(self, baseurl: str, username: str, password: str):
-        self.baseurl = baseurl if baseurl[-1] == '/' else baseurl+'/'
+        self.baseurl = baseurl if baseurl[-1] == '/' else baseurl + '/'
         self.session = requests.Session()
         self._login(username, password)
 
     def _login(
-        self,
-        username: str,
-        password: str
+            self,
+            username: str,
+            password: str
     ) -> requests.models.Response:
         """
         Authorizes the DoccanoClient instance.
@@ -168,7 +172,7 @@ class DoccanoClient(_Router):
             resourcetype: str = "TextClassificationProject",
             randomize_document_order: bool = False,
             collaborative_annotation: bool = False
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Creates a new project.
 
@@ -176,14 +180,14 @@ class DoccanoClient(_Router):
             requests.models.Response: The request response.
         """
         payload = {
-                "name": name,
-                "description": description,
-                "project_type": project_type,
-                "guideline": guideline,
-                "resourcetype": resourcetype,
-                "randomize_document_order": randomize_document_order,
-                "collaborative_annotation": collaborative_annotation
-                }
+            "name": name,
+            "description": description,
+            "project_type": project_type,
+            "guideline": guideline,
+            "resourcetype": resourcetype,
+            "randomize_document_order": randomize_document_order,
+            "collaborative_annotation": collaborative_annotation
+        }
         return self.post('v1/projects', data=payload)
 
     def create_document(
@@ -192,7 +196,7 @@ class DoccanoClient(_Router):
             text: str,
             annotations: list = [],
             annotation_approver: str = None
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Creates a document.
 
@@ -216,7 +220,7 @@ class DoccanoClient(_Router):
             self,
             project_id: int,
             document_id: int,
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         url = 'v1/projects/{}/docs/{}'.format(project_id, document_id)
         return self.delete(url)
 
@@ -228,7 +232,7 @@ class DoccanoClient(_Router):
             background_color: str = "#cdcdcd",
             prefix_key: str = None,
             suffix_key: str = None
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Creates a label to be used for annotating a document.
         """
@@ -252,17 +256,17 @@ class DoccanoClient(_Router):
             project_id: int,
             annotation_id: int,
             document_id: int
-            ) -> requests.models.Response:
+    ) -> requests.models.Response:
         """
         Adds an annotation to a given document.
         """
         url = '/v1/projects/{p_id}/docs/{d_id}/annotations'.format(
-                p_id=project_id,
-                d_id=document_id)
+            p_id=project_id,
+            d_id=document_id)
         payload = {
-                "label": annotation_id,
-                "projectId": project_id
-                }
+            "label": annotation_id,
+            "projectId": project_id
+        }
         return self.post(url, json=payload)
 
     def get_user_list(self) -> requests.models.Response:
@@ -284,8 +288,8 @@ class DoccanoClient(_Router):
         return self.get('v1/roles')
 
     def get_project_detail(
-        self,
-        project_id: int
+            self,
+            project_id: int
     ) -> requests.models.Response:
         """
         Gets details of a specific project.
@@ -303,8 +307,8 @@ class DoccanoClient(_Router):
         )
 
     def get_project_statistics(
-        self,
-        project_id: int
+            self,
+            project_id: int
     ) -> requests.models.Response:
         """
         Gets project statistics.
@@ -322,8 +326,8 @@ class DoccanoClient(_Router):
         )
 
     def get_label_list(
-        self,
-        project_id: int
+            self,
+            project_id: int
     ) -> requests.models.Response:
         """
         Gets a list of labels in a given project.
@@ -341,9 +345,9 @@ class DoccanoClient(_Router):
         )
 
     def get_label_detail(
-        self,
-        project_id: int,
-        label_id: int
+            self,
+            project_id: int,
+            label_id: int
     ) -> requests.models.Response:
         """
         Gets details of a specific label.
@@ -363,9 +367,9 @@ class DoccanoClient(_Router):
         )
 
     def get_document_list(
-        self,
-        project_id: int,
-        url_parameters: dict = {}
+            self,
+            project_id: int,
+            url_parameters: dict = {}
     ) -> requests.models.Response:
         """
         Gets a list of documents in a project.
@@ -385,9 +389,9 @@ class DoccanoClient(_Router):
         )
 
     def get_document_detail(
-        self,
-        project_id: int,
-        doc_id: int
+            self,
+            project_id: int,
+            doc_id: int
     ) -> requests.models.Response:
         """
         Gets details of a given document.
@@ -407,9 +411,9 @@ class DoccanoClient(_Router):
         )
 
     def get_annotation_list(
-        self,
-        project_id: int,
-        doc_id: int
+            self,
+            project_id: int,
+            doc_id: int
     ) -> requests.models.Response:
         """
         Gets a list of annotations in a given project and document.
@@ -429,10 +433,10 @@ class DoccanoClient(_Router):
         )
 
     def get_annotation_detail(
-        self,
-        project_id: int,
-        doc_id: int,
-        annotation_id: int
+            self,
+            project_id: int,
+            doc_id: int,
+            annotation_id: int
     ) -> requests.models.Response:
         """
         """
@@ -445,17 +449,19 @@ class DoccanoClient(_Router):
         )
 
     def get_doc_download(
-        self,
-        project_id: int,
-        file_format: str = 'json'
+            self,
+            project_id: int,
+            file_format: str = 'json'
     ) -> requests.models.Response:
         """
         Downloads the dataset in specified format.
         """
         accept_headers = {
-                'json': 'application/json',
-                'csv': 'text/csv'
-                }
+            'jsonl': 'application/json',
+            'json1': 'application/json',
+            'json': 'application/json',
+            'csv': 'text/csv'
+        }
         headers = {'accept': accept_headers[file_format]}
 
         return self.get_file(
@@ -467,8 +473,8 @@ class DoccanoClient(_Router):
         )
 
     def get_rolemapping_list(
-        self,
-        project_id: int,
+            self,
+            project_id: int,
     ) -> requests.models.Response:
         """
         """
@@ -479,9 +485,9 @@ class DoccanoClient(_Router):
         )
 
     def get_rolemapping_detail(
-        self,
-        project_id: int,
-        rolemapping_id: int,
+            self,
+            project_id: int,
+            rolemapping_id: int,
     ) -> requests.models.Response:
         """
         Currently broken!
@@ -494,11 +500,11 @@ class DoccanoClient(_Router):
         )
 
     def post_doc_upload(
-        self,
-        project_id: int,
-        file_format: str,
-        file_name: str,
-        file_path: str = './',
+            self,
+            project_id: int,
+            file_format: str,
+            file_name: str,
+            file_path: str = './',
     ) -> requests.models.Response:
         """
         Uploads a file to a Doccano project.
@@ -535,9 +541,9 @@ class DoccanoClient(_Router):
         )
 
     def post_approve_labels(
-        self,
-        project_id: int,
-        doc_id: int
+            self,
+            project_id: int,
+            doc_id: int
     ) -> requests.models.Response:
         """
         """
@@ -549,8 +555,8 @@ class DoccanoClient(_Router):
         )
 
     def _get_any_endpoint(
-        self,
-        endpoint: str
+            self,
+            endpoint: str
     ) -> requests.models.Response:
         """
         """
@@ -560,10 +566,10 @@ class DoccanoClient(_Router):
         return self.get(endpoint)
 
     def exp_get_doc_list(
-        self,
-        project_id: int,
-        limit: int,
-        offset: int
+            self,
+            project_id: int,
+            limit: int,
+            offset: int
     ) -> requests.models.Response:
         """
         """
