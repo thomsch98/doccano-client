@@ -60,9 +60,10 @@ class _Router:
         request_url = urljoin(self.baseurl, endpoint)
         r = self.session.post(
             request_url, data=data, files=files, json=json)
-        if r.headers.get('content-type') == 'application/json':
+        try:
             return r.json()
-        return r.json() if len(r.content) else None
+        except:
+            return r
 
     def delete(
             self,
