@@ -559,6 +559,7 @@ class DoccanoClient(_Router):
             self,
             project_id: int,
             doc_id: int,
+            data: dict,
             json: dict
     ) -> requests.models.Response:
         """
@@ -566,9 +567,10 @@ class DoccanoClient(_Router):
         return self.post(
             'v1/projects/{project_id}/docs/{doc_id}/annotations'.format(
                 project_id=project_id,
-                doc_id=doc_id,
-                json=json
-            )
+                doc_id=doc_id
+            ),
+            data=data,
+            json=json
         )
 
     def _get_any_endpoint(
