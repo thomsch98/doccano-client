@@ -555,6 +555,22 @@ class DoccanoClient(_Router):
             )
         )
 
+    def post_annotations(
+            self,
+            project_id: int,
+            doc_id: int,
+            json: dict
+    ) -> requests.models.Response:
+        """
+        """
+        return self.post(
+            'v1/projects/{project_id}/docs/{doc_id}/annotations'.format(
+                project_id=project_id,
+                doc_id=doc_id,
+                json=json
+            )
+        )
+
     def _get_any_endpoint(
             self,
             endpoint: str
