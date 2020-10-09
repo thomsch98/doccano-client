@@ -559,8 +559,8 @@ class DoccanoClient(_Router):
             self,
             project_id: int,
             doc_id: int,
-            data: dict,
-            json: dict
+            data: dict = {},
+            json: dict = {}
     ) -> requests.models.Response:
         """
         """
