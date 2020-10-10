@@ -600,14 +600,16 @@ class DoccanoClient(_Router):
     def delete_annotations(
             self,
             project_id: int,
-            doc_id: int
+            doc_id: int,
+            annotation_id: int
     ) -> requests.models.Response:
         """
         """
         return self.delete(
-            'v1/projects/{project_id}/docs/{doc_id}/annotations'.format(
+            'v1/projects/{project_id}/docs/{doc_id}/annotations/{annotation_id}'.format(
                 project_id=project_id,
-                doc_id=doc_id
+                doc_id=doc_id,
+                annotation_id=annotation_id
             )
         )
 
