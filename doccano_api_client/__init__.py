@@ -1,6 +1,30 @@
+import json
 import os
+from collections import namedtuple
+
 import requests
 from urllib.parse import urljoin
+
+
+def objectify(arg=None, **kwargs):
+    def _objectify(mapping):
+        if type(mapping) is dict:
+            _mapping = {}
+            for key, value in mapping.items():
+                _mapping[key] = _objectify(value)
+            return namedtuple('objectified', _mapping.keys())(*_mapping.values())
+        elif type(mapping) in [list, set, tuple]:
+            return list([_objectify(v) for v in mapping])
+        return mapping
+
+    if not arg:
+        return _objectify(kwargs)
+
+    mapping = arg
+    if type(mapping) == str:
+        mapping = json.loads(mapping)
+
+    return _objectify(mapping)
 
 
 class _Router:

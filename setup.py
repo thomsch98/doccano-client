@@ -1,7 +1,6 @@
 """Python packaging."""
 from setuptools import setup
 
-
 base_packages = ["requests"]
 
 dev_packages = [
@@ -13,6 +12,7 @@ dev_packages = [
     "flake8-docstrings==1.5.0",
     "darglint==1.4.0",
     "pre-commit>=2.2.0",
+    "nose>=1.3.0"
 ]
 
 setup(
