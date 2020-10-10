@@ -573,6 +573,20 @@ class DoccanoClient(_Router):
             json=json
         )
 
+    def delete_annotations(
+            self,
+            project_id: int,
+            doc_id: int
+    ) -> requests.models.Response:
+        """
+        """
+        return self.delete(
+            'v1/projects/{project_id}/docs/{doc_id}/annotations'.format(
+                project_id=project_id,
+                doc_id=doc_id
+            )
+        )
+
     def _get_any_endpoint(
             self,
             endpoint: str
